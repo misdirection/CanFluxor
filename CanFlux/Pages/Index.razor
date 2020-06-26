@@ -1,0 +1,11 @@
+﻿@page "/"
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@inject IDispatcher Dispatcher
+@inject IState<CanFlux.Store.GameOfLife.GameOfLifeState> BoardState
+@inject IState<CanFlux.Store.GameTimer.TimerState> TimerState
+
+<h1>Hello, Game of Life!</h1>
+
+<BECanvas Width="BoardState.Value.BoardSize" Height="BoardState.Value.BoardSize" @ref="_canvasReference"></BECanvas>
+<button @onclick="Start">Start</button>
+Generation: @BoardState.Value.GenerationCount

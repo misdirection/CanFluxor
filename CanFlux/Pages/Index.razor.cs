@@ -55,7 +55,7 @@ namespace CanFlux.Pages
             {
                 for (var y = 0; y < BoardState.Value.ArraySize; y++)
                 {
-                    if (BoardState.Value.OldGeneration[x, y])
+                    if (BoardState.Value.Cells[x, y])
                         await DrawSquare(x, y);
                 }
             }
@@ -66,12 +66,10 @@ namespace CanFlux.Pages
 
         protected override void Dispose(bool disposing)
         {
-
-            //TimerState.Value.Tick.Elapsed -= UpdateAsync;
-            _context.Dispose();
-            TimerState.Value.Tick.Dispose();
             base.Dispose(disposing);
 
+            TimerState.Value.Tick.Elapsed -= UpdateAsync;
+            _context.Dispose();
         }
 
         #region Ausgelagertes Zeug

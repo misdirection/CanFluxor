@@ -6,6 +6,6 @@ namespace CanFlux.Store.GameTimer
     {
         public override string GetName() => "GameTimer";
 
-        protected override TimerState GetInitialState() => new TimerState(100);
+        protected override TimerState GetInitialState() => new TimerState(10);
     }
 }

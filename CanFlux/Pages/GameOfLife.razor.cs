@@ -27,7 +27,6 @@ namespace CanFlux.Pages
                 _timer.Elapsed += UpdateBoard;
                 GameOfLifeHistoryState.StateChanged += RedDraw;
             }
-           // _disabled = GameOfLifeHistoryState.Value.Present.GameStarted ? "true" : "false";
         }
 
         private async void RedDraw(object sender, GameOfLifeHistoryState e)

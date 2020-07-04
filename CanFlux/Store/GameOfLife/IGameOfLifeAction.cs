@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CanFlux.Store.GameTimer
+namespace CanFlux.Store.GameOfLife
 {
-    public class StopTimerAction
+    public interface IGameOfLifeAction
     {
         
     }

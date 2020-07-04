@@ -1,0 +1,27 @@
+﻿@page "/game"
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@inject IDispatcher Dispatcher
+@inject IState<CanFlux.Store.GameOfLife.GameOfLifeHistoryState> GameOfLifeHistoryState
+
+
+<h1>Hello, Game of Life!</h1>
+
+<BECanvas Width="GameOfLifeHistoryState.Value.Present.BoardSize" Height="GameOfLifeHistoryState.Value.Present.BoardSize" @ref="_canvasReference"></BECanvas>
+
+
+
+<div class="btn-group" role="group" aria-label="Basic example">
+    <button type="button" class="btn btn-secondary" @onclick="Undo">Undo</button>
+    @if (GameOfLifeHistoryState.Value.Present.GameStarted)
+    {
+        <button type="button" class="btn btn-secondary" @onclick="Stop">Stop</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-secondary" @onclick="Start">Start</button>
+    }
+    <button type="button" class="btn btn-secondary" @onclick="Redo">Redo</button>
+
+</div>
+
+Generation: @GameOfLifeHistoryState.Value.Present.GenerationCount

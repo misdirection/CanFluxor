@@ -1,16 +1,23 @@
-﻿using System;
-
-namespace CanFlux.Store.GameOfLife
+﻿namespace CanFlux.Store.GameOfLife
 {
     public class GameOfLifeState
     {
+
+        public bool GameStarted { get; }
+        public bool[,] Cells { get; }
+        public int GenerationCount { get; }
+        public int BoardSize { get; }
+        public int SquareSize { get; }
+        public int ArraySize { get; }
+
         public GameOfLifeState(int boardSize, int squareSize)
         {
             SquareSize = squareSize;
             BoardSize = boardSize;
             ArraySize = BoardSize / SquareSize;
+            GameStarted = false;
             GenerationCount = 0;
-            Cells = new bool[ArraySize,ArraySize];
+            Cells = new bool[ArraySize, ArraySize];
             Cells[30, 30] = true;
             Cells[30, 31] = true;
             Cells[30, 32] = true;
@@ -40,20 +47,20 @@ namespace CanFlux.Store.GameOfLife
             //OldGeneration[41,41] = true;
         }
 
-        public GameOfLifeState(bool[,] newGeneration, int boardSize, int squareSize, int newGenerationCount)
+        public GameOfLifeState(GameOfLifeState state, bool gameStarted)
+            : this(state.Cells, state.BoardSize, state.SquareSize, state.GenerationCount, gameStarted)
+        { }
+
+        public GameOfLifeState(bool[,] newGeneration, int boardSize, int squareSize, int newGenerationCount, bool gameStarted)
         {
+            GameStarted = gameStarted;
             Cells = newGeneration;
             BoardSize = boardSize;
             SquareSize = squareSize;
-            ArraySize = BoardSize/ SquareSize;
+            ArraySize = BoardSize / SquareSize;
             GenerationCount = newGenerationCount;
         }
 
-        public bool[,] Cells { get; set; }
-        public int GenerationCount { get; set; }
-        public int BoardSize { get; set; }
-        public int SquareSize { get; set; }
-        public int ArraySize { get; set; }
-        //public Timer Tick { get; }
+
     }
 }

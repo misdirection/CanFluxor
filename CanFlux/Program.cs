@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Fluxor;
+using CanFlux.Store.Middleware;
 
 namespace CanFlux
 {
@@ -21,7 +22,8 @@ namespace CanFlux
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddFluxor(options =>
             {
-                options.ScanAssemblies(typeof(Program).Assembly);
+                options.ScanAssemblies(typeof(Program).Assembly)
+                .AddMiddleware<LoggingMiddleware>();
             });
             await builder.Build().RunAsync();
         }

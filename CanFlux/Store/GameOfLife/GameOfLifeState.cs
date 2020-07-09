@@ -2,8 +2,6 @@
 {
     public class GameOfLifeState
     {
-
-        public bool GameStarted { get; }
         public bool[,] Cells { get; }
         public int GenerationCount { get; }
         public int BoardSize { get; }
@@ -15,7 +13,6 @@
             SquareSize = squareSize;
             BoardSize = boardSize;
             ArraySize = BoardSize / SquareSize;
-            GameStarted = false;
             GenerationCount = 0;
             Cells = new bool[ArraySize, ArraySize];
             Cells[30, 30] = true;
@@ -48,12 +45,11 @@
         }
 
         public GameOfLifeState(GameOfLifeState state, bool gameStarted)
-            : this(state.Cells, state.BoardSize, state.SquareSize, state.GenerationCount, gameStarted)
+            : this(state.Cells, state.BoardSize, state.SquareSize, state.GenerationCount)
         { }
 
-        public GameOfLifeState(bool[,] newGeneration, int boardSize, int squareSize, int newGenerationCount, bool gameStarted)
+        public GameOfLifeState(bool[,] newGeneration, int boardSize, int squareSize, int newGenerationCount)
         {
-            GameStarted = gameStarted;
             Cells = newGeneration;
             BoardSize = boardSize;
             SquareSize = squareSize;

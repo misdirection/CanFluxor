@@ -1,7 +1,6 @@
 ﻿using Fluxor;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace CanFlux.Store.GameOfLife
 {
@@ -14,19 +13,15 @@ namespace CanFlux.Store.GameOfLife
             switch (action)
             {
                 case UndoAction a:
-
                     var previous = state.Past.LastOrDefault();
                     state.Past.RemoveAt(state.Past.Count - 1);
                     state.Future.Insert(0, state.Present);
                     return new GameOfLifeHistoryState(state.Past, previous, state.Future);
-                //case RedoAction a:
-                //    break;
-                case StartGameOfLifeAction a:
-                    var gameStartedState = ReduceStartGameAction(state.Present, a);
-                    return new GameOfLifeHistoryState(state.Past, gameStartedState, state.Future);
-                case StopGameOfLifeAction a:
-                    var gameStoppedState = ReduceStopGameAction(state.Present, a);
-                    return new GameOfLifeHistoryState(state.Past, gameStoppedState, state.Future);
+                case RedoAction a:
+                    var next = state.Future.FirstOrDefault();
+                    state.Future.RemoveAt(0);
+                    state.Past.Add(state.Present);
+                    return new GameOfLifeHistoryState(state.Past, next, state.Future);
                 case PopulateAction a:
                     state.Past.Add(state.Present);
                     var present = ReducePopulateAction(state.Present, a);
@@ -66,7 +61,7 @@ namespace CanFlux.Store.GameOfLife
                 }
             }
 
-            return new GameOfLifeState(newGeneration, state.BoardSize, state.SquareSize, state.GenerationCount + 1, true);
+            return new GameOfLifeState(newGeneration, state.BoardSize, state.SquareSize, state.GenerationCount + 1);
         }
         private int IsNeighbourAlive(int x, int y, GameOfLifeState state)
         {
@@ -79,9 +74,6 @@ namespace CanFlux.Store.GameOfLife
             }
             return result;
         }
-        public GameOfLifeState ReduceStartGameAction(GameOfLifeState state, StartGameOfLifeAction action) => new GameOfLifeState(state, action.GameStarted);
-        public GameOfLifeState ReduceStopGameAction(GameOfLifeState state, StopGameOfLifeAction action) => new GameOfLifeState(state, action.GameStarted);
-
 
     }
 }

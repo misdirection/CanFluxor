@@ -12,10 +12,10 @@ namespace CanFlux.Pages
     {
         private Canvas2DContext _context;
         private Timer _timer;
+        private string _disabled = "true";
 
         protected BECanvasComponent _canvasReference;
-        private string _disabled = "false";
-
+        protected bool _gameStarted = false;
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -25,11 +25,11 @@ namespace CanFlux.Pages
                 await DrawBoard();
                 _timer = new Timer(200);
                 _timer.Elapsed += UpdateBoard;
-                GameOfLifeHistoryState.StateChanged += RedDraw;
+                GameOfLifeHistoryState.StateChanged += ReDraw;
             }
         }
 
-        private async void RedDraw(object sender, GameOfLifeHistoryState e)
+        private async void ReDraw(object sender, GameOfLifeHistoryState e)
         {
             await _context.BeginBatchAsync();
             await ClearBoard(GameOfLifeHistoryState.Value.Present.BoardSize);
@@ -82,16 +82,16 @@ namespace CanFlux.Pages
 
         protected void Start(MouseEventArgs args)
         {
-            Dispatcher.Dispatch(new StartGameOfLifeAction());
-            _timer.Start();
+            _gameStarted = !_gameStarted;
             _disabled = "true";
+            _timer.Start();
         }
 
         protected void Stop(MouseEventArgs args)
         {
-            _disabled = "false";
-            Dispatcher.Dispatch(new StopGameOfLifeAction());
             _timer.Stop();
+            _gameStarted = !_gameStarted;
+            _disabled = "false";
         }
         protected void Undo(MouseEventArgs args) => Dispatcher.Dispatch(new UndoAction());
 
@@ -99,8 +99,8 @@ namespace CanFlux.Pages
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            Dispatcher.Dispatch(new StopGameOfLifeAction());
             _timer.Elapsed -= UpdateBoard;
+            GameOfLifeHistoryState.StateChanged -= ReDraw;
             _timer.Dispose();
             _context.Dispose();
         }

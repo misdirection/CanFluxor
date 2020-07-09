@@ -12,7 +12,7 @@
 
 <div class="btn-group" role="group" aria-label="Basic example">
     <button type="button" class="btn btn-secondary" @onclick="Undo">Undo</button>
-    @if (GameOfLifeHistoryState.Value.Present.GameStarted)
+    @if (_gameStarted)
     {
         <button type="button" class="btn btn-secondary" @onclick="Stop">Stop</button>
     }

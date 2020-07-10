@@ -37,13 +37,9 @@ namespace CanFlux.Pages
             await _context.EndBatchAsync();
         }
 
-        private async void UpdateBoard(object sender, ElapsedEventArgs e)
+        private void UpdateBoard(object sender, ElapsedEventArgs e)
         {
             Dispatcher.Dispatch(new PopulateAction());
-            await _context.BeginBatchAsync();
-            await ClearBoard(GameOfLifeHistoryState.Value.Present.BoardSize);
-            await DrawBoard();
-            await _context.EndBatchAsync();
         }
 
         #region Drawing

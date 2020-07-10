@@ -21,7 +21,6 @@ namespace CanFlux.Pages
             if (firstRender)
             {
                 _context = await _canvasReference.CreateCanvas2DAsync();
-                await _context.StrokeRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
                 await DrawBoard();
                 _timer = new Timer(200);
                 _timer.Elapsed += UpdateBoard;
@@ -54,6 +53,7 @@ namespace CanFlux.Pages
 
         private async Task DrawBoard()
         {
+            await _context.StrokeRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
             for (var x = 0; x < GameOfLifeHistoryState.Value.Present.ArraySize; x++)
             {
                 for (var y = 0; y < GameOfLifeHistoryState.Value.Present.ArraySize; y++)

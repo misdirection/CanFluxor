@@ -12,10 +12,10 @@ namespace CanFlux.Pages
     {
         private Canvas2DContext _context;
         private Timer _timer;
-        private string _disabled = "true";
 
         protected BECanvasComponent _canvasReference;
         protected bool _gameStarted = false;
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -79,7 +79,6 @@ namespace CanFlux.Pages
         protected void Start(MouseEventArgs args)
         {
             _gameStarted = !_gameStarted;
-            _disabled = "true";
             _timer.Start();
         }
 
@@ -87,7 +86,6 @@ namespace CanFlux.Pages
         {
             _timer.Stop();
             _gameStarted = !_gameStarted;
-            _disabled = "false";
         }
         protected void Undo(MouseEventArgs args) => Dispatcher.Dispatch(new UndoAction());
 

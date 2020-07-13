@@ -97,6 +97,8 @@ namespace CanFlux.Pages
         protected void Undo(MouseEventArgs args) => Dispatcher.Dispatch(new UndoAction());
 
         protected void Redo(MouseEventArgs args) => Dispatcher.Dispatch(new RedoAction());
+        protected void Restart(MouseEventArgs args) => Dispatcher.Dispatch(new RestartAction());
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

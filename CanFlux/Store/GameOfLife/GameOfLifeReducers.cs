@@ -1,4 +1,5 @@
-﻿using Fluxor;
+﻿using CanFlux.Pages;
+using Fluxor;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -27,6 +28,9 @@ namespace CanFlux.Store.GameOfLife
                     state.Past.Add(state.Present);
                     var present = ReducePopulateAction(state.Present, a);
                     return new GameOfLifeHistoryState(state.Past, present, new List<GameOfLifeState>());
+                case RestartAction a:
+                    state.Past.Add(state.Present);
+                    return new GameOfLifeHistoryState(new List<GameOfLifeState>(), new GameOfLifeState(1000, 10) , new List<GameOfLifeState>());
                 default:
                     return new GameOfLifeHistoryState(state.Past, state.Present, state.Future);
             }

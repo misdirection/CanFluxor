@@ -37,7 +37,14 @@
     {
         <button type="button" class="btn btn-secondary" @onclick="Redo">Redo</button>
     }
-
+    @if (_gameStarted)
+    {
+        <button type="button" disabled class="btn btn-secondary" >Restart</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-secondary" @onclick="Restart">Restart</button>
+    }
 </div>
 
 Generation: @GameOfLifeHistoryState.Value.Present.GenerationCount

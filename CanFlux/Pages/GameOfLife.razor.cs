@@ -3,6 +3,7 @@ using Blazor.Extensions.Canvas.Canvas2D;
 using CanFlux.Store.GameOfLife;
 using Fluxor.Blazor.Web.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -48,6 +49,7 @@ namespace CanFlux.Pages
         {
             var xCoord = x * GameOfLifeHistoryState.Value.Present.SquareSize;
             var yCoord = y * GameOfLifeHistoryState.Value.Present.SquareSize;
+            await _context.SetFillStyleAsync(GameOfLifeHistoryState.Value.Present.Cells[x, y]);
             await _context.FillRectAsync(xCoord, yCoord, GameOfLifeHistoryState.Value.Present.SquareSize, GameOfLifeHistoryState.Value.Present.SquareSize);
         }
 
@@ -58,7 +60,7 @@ namespace CanFlux.Pages
             {
                 for (var y = 0; y < GameOfLifeHistoryState.Value.Present.ArraySize; y++)
                 {
-                    if (GameOfLifeHistoryState.Value.Present.Cells[x, y])
+                    if (GameOfLifeHistoryState.Value.Present.Cells[x, y] != null)
                         await DrawSquare(x, y);
                 }
             }

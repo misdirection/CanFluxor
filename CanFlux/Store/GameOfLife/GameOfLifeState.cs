@@ -1,8 +1,10 @@
-﻿namespace CanFlux.Store.GameOfLife
+﻿using System.Drawing;
+
+namespace CanFlux.Store.GameOfLife
 {
     public class GameOfLifeState
     {
-        public bool[,] Cells { get; }
+        public string[,] Cells { get; }
         public int GenerationCount { get; }
         public int BoardSize { get; }
         public int SquareSize { get; }
@@ -14,14 +16,14 @@
             BoardSize = boardSize;
             ArraySize = BoardSize / SquareSize;
             GenerationCount = 0;
-            Cells = new bool[ArraySize, ArraySize];
-            Cells[30, 30] = true;
-            Cells[30, 31] = true;
-            Cells[30, 32] = true;
-            Cells[31, 30] = true;
-            Cells[32, 30] = true;
-            Cells[33, 31] = true;
-            Cells[34, 32] = true;
+            Cells = new string[ArraySize, ArraySize];
+            Cells[30, 30] = "Red";
+            Cells[30, 31] = "Red";
+            Cells[30, 32] = "Red";
+            Cells[31, 30] = "Green";
+            Cells[32, 30] = "Green";
+            Cells[33, 31] = "Red";
+            Cells[34, 32] = "Red";
 
             //OldGeneration[10, 10] = true;
             //OldGeneration[11, 10] = true;
@@ -48,7 +50,7 @@
             : this(state.Cells, state.BoardSize, state.SquareSize, state.GenerationCount)
         { }
 
-        public GameOfLifeState(bool[,] newGeneration, int boardSize, int squareSize, int newGenerationCount)
+        public GameOfLifeState(string[,] newGeneration, int boardSize, int squareSize, int newGenerationCount)
         {
             Cells = newGeneration;
             BoardSize = boardSize;

@@ -34,63 +34,47 @@ namespace CanFlux.Store.GameOfLife
 
         public GameOfLifeState ReducePopulateAction(GameOfLifeState state, PopulateAction action)
         {
-            var newGeneration = new string[state.ArraySize, state.ArraySize];
+            var newGeneration = new Color[state.ArraySize, state.ArraySize];
             for (var x = 0; x < state.ArraySize; x++)
             {
                 for (var y = 0; y < state.ArraySize; y++)
                 {
-                    int red = IsNeighbourAlive(x - 1, y - 1, state, "Red")
-                        + IsNeighbourAlive(x - 1, y, state, "Red")
-                        + IsNeighbourAlive(x - 1, y + 1, state, "Red")
-                        + IsNeighbourAlive(x, y - 1, state, "Red")
-                        + IsNeighbourAlive(x, y + 1, state, "Red")
-                        + IsNeighbourAlive(x + 1, y - 1, state, "Red")
-                        + IsNeighbourAlive(x + 1, y, state, "Red")
-                        + IsNeighbourAlive(x + 1, y + 1, state, "Red");
-
-                    int green = IsNeighbourAlive(x - 1, y - 1, state, "Green")
-                        + IsNeighbourAlive(x - 1, y, state, "Green")
-                        + IsNeighbourAlive(x - 1, y + 1, state, "Green")
-                        + IsNeighbourAlive(x, y - 1, state, "Green")
-                        + IsNeighbourAlive(x, y + 1, state, "Green")
-                        + IsNeighbourAlive(x + 1, y - 1, state, "Green")
-                        + IsNeighbourAlive(x + 1, y, state, "Green")
-                        + IsNeighbourAlive(x + 1, y + 1, state, "Green");
-
-                    var shouldLive = false;
-                    var isAlive = state.Cells[x, y] != null;
-                    if (isAlive && (red + green == 3 || red + green == 2))
+                    var red = 0;
+                    var green = 0;
+                    var blue = 0;
+                    var count = 0;
+                    for (int i = -1; i <= 1; i++)
                     {
-                        shouldLive = true;
+                        for (int j = -1; j <= 1; j++)
+                        {
+                            bool outOfBounds = x + i < 0 || x + i > state.ArraySize - 1 || y + j < 0 || y + j > state.ArraySize - 1 || (i == 0 && j == 0);
+                            if (!outOfBounds && state.Cells[x + i, y + j] != Color.White)
+                            {
+                                count++;
+                                red += state.Cells[x + i, y + j].R;
+                                green += state.Cells[x + i, y + j].G;
+                                blue += state.Cells[x + i, y + j].B;
+                            }
+                        }
                     }
-                    else if (!isAlive && red + green == 3)
+
+                    var isAlive = state.Cells[x, y] != Color.White;
+                    if (isAlive && (count == 3 || count == 2))
                     {
-                        shouldLive = true;
+                        newGeneration[x, y] = state.Cells[x, y];
                     }
-                    if (shouldLive)
+                    else if (!isAlive && count == 3)
                     {
-                        newGeneration[x, y] = red > green ? "Red" : "Green";
+                        newGeneration[x, y] = Color.FromArgb(255, red / count, green / count, blue / count);
                     }
                     else
                     {
-                        newGeneration[x, y] = null;
+                        newGeneration[x, y] = Color.White;
                     }
                 }
             }
 
             return new GameOfLifeState(newGeneration, state.BoardSize, state.SquareSize, state.GenerationCount + 1);
         }
-        private int IsNeighbourAlive(int x, int y, GameOfLifeState state, string color)
-        {
-            var result = 0;
-
-            bool outOfBounds = x < 0 || x > state.ArraySize - 1 || y < 0 || y > state.ArraySize - 1;
-            if (!outOfBounds)
-            {
-                result = state.Cells[x, y] == color ? 1 : 0;
-            }
-            return result;
-        }
-
     }
 }

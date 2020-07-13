@@ -1,10 +1,11 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace CanFlux.Store.GameOfLife
 {
     public class GameOfLifeState
     {
-        public string[,] Cells { get; }
+        public Color[,] Cells { get; }
         public int GenerationCount { get; }
         public int BoardSize { get; }
         public int SquareSize { get; }
@@ -16,14 +17,22 @@ namespace CanFlux.Store.GameOfLife
             BoardSize = boardSize;
             ArraySize = BoardSize / SquareSize;
             GenerationCount = 0;
-            Cells = new string[ArraySize, ArraySize];
-            Cells[30, 30] = "Red";
-            Cells[30, 31] = "Red";
-            Cells[30, 32] = "Red";
-            Cells[31, 30] = "Green";
-            Cells[32, 30] = "Green";
-            Cells[33, 31] = "Red";
-            Cells[34, 32] = "Red";
+            Cells = new Color[ArraySize, ArraySize];
+            for (int x = 0; x < ArraySize; x++)
+            {
+                for (int y = 0; y < ArraySize; y++)
+                {
+                    Cells[x, y] = Color.White;
+                }
+            }
+
+            Cells[30, 30] = Color.FromArgb(255, 83, 230, 27);
+            Cells[30, 31] = Color.FromArgb(255, 65, 15, 190);
+            Cells[30, 32] = Color.FromArgb(255, 207, 227, 184);
+            Cells[31, 30] = Color.FromArgb(255, 94, 147, 211);
+            Cells[32, 30] = Color.FromArgb(255, 181, 117, 179);
+            Cells[33, 31] = Color.FromArgb(255, 46, 66, 244);
+            Cells[34, 32] = Color.FromArgb(255, 35, 87, 109);
 
             //OldGeneration[10, 10] = true;
             //OldGeneration[11, 10] = true;
@@ -50,7 +59,7 @@ namespace CanFlux.Store.GameOfLife
             : this(state.Cells, state.BoardSize, state.SquareSize, state.GenerationCount)
         { }
 
-        public GameOfLifeState(string[,] newGeneration, int boardSize, int squareSize, int newGenerationCount)
+        public GameOfLifeState(Color[,] newGeneration, int boardSize, int squareSize, int newGenerationCount)
         {
             Cells = newGeneration;
             BoardSize = boardSize;
@@ -58,7 +67,5 @@ namespace CanFlux.Store.GameOfLife
             ArraySize = BoardSize / SquareSize;
             GenerationCount = newGenerationCount;
         }
-
-
     }
 }

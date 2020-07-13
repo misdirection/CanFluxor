@@ -49,8 +49,13 @@ namespace CanFlux.Pages
         {
             var xCoord = x * GameOfLifeHistoryState.Value.Present.SquareSize;
             var yCoord = y * GameOfLifeHistoryState.Value.Present.SquareSize;
-            await _context.SetFillStyleAsync(GameOfLifeHistoryState.Value.Present.Cells[x, y]);
+            await _context.SetFillStyleAsync(GetColorString(GameOfLifeHistoryState.Value.Present.Cells[x, y]));
             await _context.FillRectAsync(xCoord, yCoord, GameOfLifeHistoryState.Value.Present.SquareSize, GameOfLifeHistoryState.Value.Present.SquareSize);
+        }
+
+        private string GetColorString(Color color)
+        {
+            return "#" + (color.R).ToString("X2") + (color.G).ToString("X2") + (color.B).ToString("X2");
         }
 
         private async Task DrawBoard()
@@ -60,7 +65,7 @@ namespace CanFlux.Pages
             {
                 for (var y = 0; y < GameOfLifeHistoryState.Value.Present.ArraySize; y++)
                 {
-                    if (GameOfLifeHistoryState.Value.Present.Cells[x, y] != null)
+                    if (GameOfLifeHistoryState.Value.Present.Cells[x, y] != Color.White)
                         await DrawSquare(x, y);
                 }
             }

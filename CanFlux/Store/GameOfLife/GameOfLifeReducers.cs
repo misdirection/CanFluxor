@@ -1,5 +1,6 @@
 ﻿using CanFlux.Pages;
 using Fluxor;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -30,10 +31,17 @@ namespace CanFlux.Store.GameOfLife
                     return new GameOfLifeHistoryState(state.Past, present, new List<GameOfLifeState>());
                 case RestartAction a:
                     state.Past.Add(state.Present);
-                    return new GameOfLifeHistoryState(new List<GameOfLifeState>(), new GameOfLifeState(1000, 10) , new List<GameOfLifeState>());
+                    return new GameOfLifeHistoryState(new List<GameOfLifeState>(), new GameOfLifeState(1000, 10), new List<GameOfLifeState>());
                 default:
                     return new GameOfLifeHistoryState(state.Past, state.Present, state.Future);
             }
+        }
+
+        private struct RGB
+        {
+            public int R { get; set; }
+            public int G { get; set; }
+            public int B { get; set; }
         }
 
         public GameOfLifeState ReducePopulateAction(GameOfLifeState state, PopulateAction action)
@@ -43,21 +51,18 @@ namespace CanFlux.Store.GameOfLife
             {
                 for (var y = 0; y < state.ArraySize; y++)
                 {
-                    var red = 0;
-                    var green = 0;
-                    var blue = 0;
+                    var rgb = new RGB();
                     var count = 0;
-                    for (int i = -1; i <= 1; i++)
+                    for (int i = Math.Max(0, x - 1); i <= Math.Min(state.ArraySize - 1, x + 1); i++)
                     {
-                        for (int j = -1; j <= 1; j++)
+                        for (int j = Math.Max(0, y - 1); j <= Math.Min(state.ArraySize - 1, y + 1); j++)
                         {
-                            bool outOfBounds = x + i < 0 || x + i > state.ArraySize - 1 || y + j < 0 || y + j > state.ArraySize - 1 || (i == 0 && j == 0);
-                            if (!outOfBounds && state.Cells[x + i, y + j] != Color.White)
+                            if (!(i == x && j == y) && state.Cells[i, j] != Color.White)
                             {
                                 count++;
-                                red += state.Cells[x + i, y + j].R;
-                                green += state.Cells[x + i, y + j].G;
-                                blue += state.Cells[x + i, y + j].B;
+                                rgb.R += state.Cells[i, j].R;
+                                rgb.G += state.Cells[i, j].G;
+                                rgb.B += state.Cells[i, j].B;
                             }
                         }
                     }
@@ -69,7 +74,7 @@ namespace CanFlux.Store.GameOfLife
                     }
                     else if (!isAlive && count == 3)
                     {
-                        newGeneration[x, y] = Color.FromArgb(255, red / count, green / count, blue / count);
+                        newGeneration[x, y] = Color.FromArgb(255, rgb.R / 3, rgb.G / 3, rgb.B / 3);
                     }
                     else
                     {

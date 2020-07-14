@@ -26,13 +26,13 @@ namespace CanFlux.Store.GameOfLife
                 }
             }
 
-            Cells[30, 30] = Color.FromArgb(255, 83, 230, 27);
-            Cells[30, 31] = Color.FromArgb(255, 65, 15, 190);
-            Cells[30, 32] = Color.FromArgb(255, 207, 227, 184);
-            Cells[31, 30] = Color.FromArgb(255, 94, 147, 211);
-            Cells[32, 30] = Color.FromArgb(255, 181, 117, 179);
-            Cells[33, 31] = Color.FromArgb(255, 46, 66, 244);
-            Cells[34, 32] = Color.FromArgb(255, 35, 87, 109);
+            //Cells[30, 30] = Color.FromArgb(255, 83, 230, 27);
+            //Cells[30, 31] = Color.FromArgb(255, 65, 15, 190);
+            //Cells[30, 32] = Color.FromArgb(255, 207, 227, 184);
+            //Cells[31, 30] = Color.FromArgb(255, 94, 147, 211);
+            //Cells[32, 30] = Color.FromArgb(255, 181, 117, 179);
+            //Cells[33, 31] = Color.FromArgb(255, 46, 66, 244);
+            //Cells[34, 32] = Color.FromArgb(255, 35, 87, 109);
 
             //OldGeneration[10, 10] = true;
             //OldGeneration[11, 10] = true;

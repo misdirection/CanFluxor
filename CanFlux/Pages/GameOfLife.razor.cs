@@ -1,8 +1,13 @@
 ﻿using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using CanFlux.Store.GameOfLife;
+using Fluxor;
 using Fluxor.Blazor.Web.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Timers;
@@ -11,14 +16,21 @@ namespace CanFlux.Pages
 {
     public partial class GameOfLife : FluxorComponent
     {
+        [Inject]
+        IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        IState<CanFlux.Store.GameOfLife.GameOfLifeHistoryState> GameOfLifeHistoryState { get; set; }
+
         private Canvas2DContext _context;
         private Timer _timer;
 
+        protected ElementReference divCanvas;
         protected BECanvasComponent _canvasReference;
         protected bool _gameStarted = false;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
+        {            
             if (firstRender)
             {
                 _context = await _canvasReference.CreateCanvas2DAsync();
@@ -27,6 +39,7 @@ namespace CanFlux.Pages
                 _timer.Elapsed += UpdateBoard;
                 GameOfLifeHistoryState.StateChanged += ReDraw;
             }
+            
         }
 
         private async void ReDraw(object sender, GameOfLifeHistoryState e)
@@ -72,16 +85,32 @@ namespace CanFlux.Pages
         }
         #endregion
 
-        //private async Task DrawAt(int x, int y)
-        //{
-        //    var xCoord = x;
-        //    var yCoord = y;
-        //    await _context.FillRectAsync(xCoord, yCoord, BoardState.Value.SquareSize, BoardState.Value.SquareSize);
-        //}
-        //protected void CanvasClicked(MouseEventArgs args)
-        //{
-        //    DrawAt((int)args.ClientX, (int)args.ClientY);
-        //}
+        private async Task DrawAt(int x, int y)
+        {
+            string data = await JSRuntime.InvokeAsync<string>("getDivCanvasOffsets", new object[] { divCanvas });
+            JObject offsets = (JObject)JsonConvert.DeserializeObject(data);
+            var xCoord = x - x % GameOfLifeHistoryState.Value.Present.SquareSize - (int)offsets.Value<double>("offsetLeft");
+            var yCoord = y - y % GameOfLifeHistoryState.Value.Present.SquareSize - (int)offsets.Value<double>("offsetTop");
+            if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] == Color.White)
+            {
+                GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] = Color.Red;
+                await _context.SetFillStyleAsync("Red");
+            }
+            else
+            {
+                GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] = Color.White;
+                await _context.SetFillStyleAsync("White");
+            }
+
+            await _context.FillRectAsync(xCoord, yCoord, GameOfLifeHistoryState.Value.Present.SquareSize, GameOfLifeHistoryState.Value.Present.SquareSize);
+        }
+        protected async void CanvasClicked(MouseEventArgs args)
+        {
+            if (!_gameStarted)
+            {
+                await DrawAt((int)args.ClientX, (int)args.ClientY);
+            }
+        }
 
         protected void Start(MouseEventArgs args)
         {

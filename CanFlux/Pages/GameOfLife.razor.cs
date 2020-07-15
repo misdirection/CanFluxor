@@ -145,6 +145,7 @@ namespace CanFlux.Pages
             _context.Dispose();
         }
 
+        
         private string GetStringFromColor(Color color)
         {
             return "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
@@ -158,6 +159,7 @@ namespace CanFlux.Pages
             return Color.FromArgb(255, red, green, blue);
         }
 
+        #region ColorPicker
         bool colorPickerisOpened = false;
         string pickedColor = "#F1F7E9";
 
@@ -171,5 +173,6 @@ namespace CanFlux.Pages
             pickedColor = value;
             colorPickerisOpened = false;
         }
+        #endregion
     }
 }

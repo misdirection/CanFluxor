@@ -31,7 +31,7 @@ namespace CanFlux.Store.GameOfLife
                     return new GameOfLifeHistoryState(state.Past, present, new List<GameOfLifeState>());
                 case RestartAction a:
                     state.Past.Add(state.Present);
-                    return new GameOfLifeHistoryState(new List<GameOfLifeState>(), new GameOfLifeState(1000, 10), new List<GameOfLifeState>());
+                    return new GameOfLifeHistoryState(new List<GameOfLifeState>(), new GameOfLifeState(600, 10), new List<GameOfLifeState>());
                 default:
                     return new GameOfLifeHistoryState(state.Past, state.Present, state.Future);
             }

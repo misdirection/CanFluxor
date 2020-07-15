@@ -4,52 +4,58 @@
 @using BlazorColorPicker
 
 <h1>Hello, Game of Life!</h1>
+  <div class="row">
+    <div class="col-lg-6 col-xs-12" style="min-width:@(BoardSize + 20)px">
+      <div @ref="divCanvas" @onclick="CanvasClicked">
+        <BECanvas Width="BoardSize" Height="BoardSize" @ref="_canvasReference"></BECanvas>
+      </div>
 
-<div @ref="divCanvas" @onclick="CanvasClicked">
-  <BECanvas Width="BoardSize" Height="BoardSize" @ref="_canvasReference"></BECanvas>
-</div>
+      <ColorPicker Title="My Blazor ColorPicker" IsOpened="colorPickerisOpened" Closed="ClosedColorPickerEvent" MyColor="@pickedColor">
+      </ColorPicker>
 
-<ColorPicker Title="My Blazor ColorPicker" IsOpened="colorPickerisOpened" Closed="ClosedColorPickerEvent" MyColor="@pickedColor">
-</ColorPicker>
+      <div class="btn-group" role="group" aria-label="Basic example">
+        @if (GameOfLifeHistoryState.Value.Past.Count == 0 || _gameStarted)
+        {
+          <button type="button" disabled class="btn btn-secondary">Undo</button>
+        }
+        else
+        {
+          <button type="button" class="btn btn-secondary" @onclick="Undo">Undo</button>
+        }
 
-<div class="btn-group" role="group" aria-label="Basic example">
-  @if (GameOfLifeHistoryState.Value.Past.Count == 0 || _gameStarted)
-  {
-    <button type="button" disabled class="btn btn-secondary">Undo</button>
-  }
-  else
-  {
-    <button type="button" class="btn btn-secondary" @onclick="Undo">Undo</button>
-  }
+        @if (_gameStarted)
+        {
+          <button type="button" class="btn btn-secondary" @onclick="Stop">Stop</button>
+        }
+        else
+        {
+          <button type="button" class="btn btn-secondary" @onclick="Start">Start</button>
+        }
 
-  @if (_gameStarted)
-  {
-    <button type="button" class="btn btn-secondary" @onclick="Stop">Stop</button>
-  }
-  else
-  {
-    <button type="button" class="btn btn-secondary" @onclick="Start">Start</button>
-  }
+        @if (GameOfLifeHistoryState.Value.Future.Count == 0 || _gameStarted)
+        {
+          <button type="button" disabled class="btn btn-secondary">Redo</button>
+        }
+        else
+        {
+          <button type="button" class="btn btn-secondary" @onclick="Redo">Redo</button>
+        }
+        @if (_gameStarted)
+        {
+          <button type="button" disabled class="btn btn-secondary">Restart</button>
+        }
+        else
+        {
+          <button type="button" class="btn btn-secondary" @onclick="Restart">Restart</button>
+        }
+        <button class="btn btn-primary" @onclick="OpenColorPicker">
+          <div style="background-color:@pickedColor" class="buttonColor"></div> Select a Color
+        </button>
+      </div>
 
-  @if (GameOfLifeHistoryState.Value.Future.Count == 0 || _gameStarted)
-  {
-    <button type="button" disabled class="btn btn-secondary">Redo</button>
-  }
-  else
-  {
-    <button type="button" class="btn btn-secondary" @onclick="Redo">Redo</button>
-  }
-  @if (_gameStarted)
-  {
-    <button type="button" disabled class="btn btn-secondary">Restart</button>
-  }
-  else
-  {
-    <button type="button" class="btn btn-secondary" @onclick="Restart">Restart</button>
-  }
-  <button class="btn btn-primary" @onclick="OpenColorPicker">
-    <div style="background-color:@pickedColor" class="buttonColor"></div> Select a Color
-  </button>
-</div>
-
-Generation: @GameOfLifeHistoryState.Value.Present.GenerationCount
+      Generation: @GameOfLifeHistoryState.Value.Present.GenerationCount
+    </div>
+    <div class="col-lg-6 col-xs-12">
+      <h2>Stats</h2>
+    </div>
+  </div>

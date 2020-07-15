@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -71,13 +73,8 @@ namespace CanFlux.Pages
         {
             var xCoord = x * SquareSize;
             var yCoord = y * SquareSize;
-            await _context.SetFillStyleAsync(GetColorString(GameOfLifeHistoryState.Value.Present.Cells[x, y]));
+            await _context.SetFillStyleAsync(GetStringFromColor(GameOfLifeHistoryState.Value.Present.Cells[x, y]));
             await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
-        }
-
-        private string GetColorString(Color color)
-        {
-            return "#" + (color.R).ToString("X2") + (color.G).ToString("X2") + (color.B).ToString("X2");
         }
 
         private async Task DrawBoard()
@@ -104,9 +101,8 @@ namespace CanFlux.Pages
             {
                 if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] == Color.White)
                 {
-                    Color color = Color.FromArgb(255, Random.Next(256), Random.Next(256), Random.Next(256));
-                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = color;
-                    await _context.SetFillStyleAsync(GetColorString(color));
+                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = GetColorFromString(pickedColor);
+                    await _context.SetFillStyleAsync(pickedColor);
                 }
                 else
                 {
@@ -135,8 +131,8 @@ namespace CanFlux.Pages
             _timer.Stop();
             _gameStarted = !_gameStarted;
         }
-        protected void Undo(MouseEventArgs args) => Dispatcher.Dispatch(new UndoAction());
 
+        protected void Undo(MouseEventArgs args) => Dispatcher.Dispatch(new UndoAction());
         protected void Redo(MouseEventArgs args) => Dispatcher.Dispatch(new RedoAction());
         protected void Restart(MouseEventArgs args) => Dispatcher.Dispatch(new RestartAction());
 
@@ -147,6 +143,33 @@ namespace CanFlux.Pages
             GameOfLifeHistoryState.StateChanged -= ReDraw;
             _timer.Dispose();
             _context.Dispose();
+        }
+
+        private string GetStringFromColor(Color color)
+        {
+            return "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
+        }
+
+        private Color GetColorFromString(string str)
+        {
+            int red = int.Parse(str.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
+            int green = int.Parse(str.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
+            int blue = int.Parse(str.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
+            return Color.FromArgb(255, red, green, blue);
+        }
+
+        bool colorPickerisOpened = false;
+        string pickedColor = "#F1F7E9";
+
+        void OpenColorPicker()
+        {
+            colorPickerisOpened = true;
+        }
+
+        void ClosedColorPickerEvent(string value)
+        {
+            pickedColor = value;
+            colorPickerisOpened = false;
         }
     }
 }

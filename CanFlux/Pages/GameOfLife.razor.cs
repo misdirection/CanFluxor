@@ -43,7 +43,7 @@ namespace CanFlux.Pages
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
-        {            
+        {
             if (firstRender)
             {
                 _context = await _canvasReference.CreateCanvas2DAsync();
@@ -51,7 +51,7 @@ namespace CanFlux.Pages
                 _timer = new Timer(200);
                 _timer.Elapsed += UpdateBoard;
                 GameOfLifeHistoryState.StateChanged += ReDraw;
-            }            
+            }
         }
 
         private async void ReDraw(object sender, GameOfLifeHistoryState e)
@@ -115,29 +115,56 @@ namespace CanFlux.Pages
                 {
                     GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = GetColorFromString(pickedColor);
                     await _context.SetFillStyleAsync(pickedColor);
+                    AddToColorCount(pickedColor);
                 }
-                else
+                else if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] == GetColorFromString(pickedColor))
                 {
                     GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = Color.White;
                     await _context.SetFillStyleAsync("White");
-                }
-                await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
-                if (!ColorCount.ContainsKey(pickedColor))
-                {
-                    ColorCount.Add(pickedColor, 1);
+                    RemoveFromColorCount(pickedColor);
                 }
                 else
                 {
-                    ColorCount[pickedColor]++;
+                    RemoveFromColorCount(GetStringFromColor(GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize]));
+                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = GetColorFromString(pickedColor);
+                    await _context.SetFillStyleAsync(pickedColor);
+                    AddToColorCount(pickedColor);
                 }
+                await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
+                
                 StateHasChanged();
-            }            
+            }
         }
+
         protected async void CanvasClicked(MouseEventArgs args)
         {
             if (!_gameStarted)
             {
                 await DrawAt((int)args.ClientX, (int)args.ClientY);
+            }
+        }
+
+        private void AddToColorCount(string color)
+        {
+            if (!ColorCount.ContainsKey(color))
+            {
+                ColorCount.Add(color, 1);
+            }
+            else
+            {
+                ColorCount[color]++;
+            }
+        }
+
+        private void RemoveFromColorCount(string color)
+        {
+            if (ColorCount[color] == 1)
+            {
+                ColorCount.Remove(color);
+            }
+            else
+            {
+                ColorCount[color]--;
             }
         }
 
@@ -166,7 +193,7 @@ namespace CanFlux.Pages
             _context.Dispose();
         }
 
-        
+
         private string GetStringFromColor(Color color)
         {
             return "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");

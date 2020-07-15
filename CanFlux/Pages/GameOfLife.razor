@@ -57,5 +57,20 @@
     </div>
     <div class="col-lg-6 col-xs-12">
       <h2>Stats</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Color</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        @foreach (var colorCount in ColorCount)
+        {
+          <tr>
+            <td>@colorCount.Key</td>
+            <td>@colorCount.Value</td>
+          </tr>
+        }
+      </table>
     </div>
   </div>

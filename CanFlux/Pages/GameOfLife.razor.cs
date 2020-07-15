@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace CanFlux.Pages
         protected bool _gameStarted = false;
         protected int BoardSize { get; set; }
         protected int SquareSize { get; set; }
+        protected Dictionary<string, int> ColorCount { get; set; } = new Dictionary<string, int>();
 
         protected override void OnInitialized()
         {
@@ -73,12 +75,22 @@ namespace CanFlux.Pages
         {
             var xCoord = x * SquareSize;
             var yCoord = y * SquareSize;
-            await _context.SetFillStyleAsync(GetStringFromColor(GameOfLifeHistoryState.Value.Present.Cells[x, y]));
+            var color = GetStringFromColor(GameOfLifeHistoryState.Value.Present.Cells[x, y]);
+            await _context.SetFillStyleAsync(color);
             await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
+            if (!ColorCount.ContainsKey(color))
+            {
+                ColorCount.Add(color, 1);
+            }
+            else
+            {
+                ColorCount[color]++;
+            }
         }
 
         private async Task DrawBoard()
         {
+            ColorCount = new Dictionary<string, int>();
             await _context.StrokeRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
             for (var x = 0; x < GameOfLifeHistoryState.Value.Present.ArraySize; x++)
             {
@@ -110,6 +122,15 @@ namespace CanFlux.Pages
                     await _context.SetFillStyleAsync("White");
                 }
                 await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
+                if (!ColorCount.ContainsKey(pickedColor))
+                {
+                    ColorCount.Add(pickedColor, 1);
+                }
+                else
+                {
+                    ColorCount[pickedColor]++;
+                }
+                StateHasChanged();
             }            
         }
         protected async void CanvasClicked(MouseEventArgs args)

@@ -107,8 +107,8 @@ namespace CanFlux.Pages
         {
             var data = await JSRuntime.InvokeAsync<string>("getDivCanvasOffsets", new object[] { divCanvas });
             var offsets = (JObject)JsonConvert.DeserializeObject(data);
-            var xCoord = x - (int)offsets.Value<double>("offsetLeft") - (x - (int)offsets.Value<double>("offsetLeft")) % SquareSize;
-            var yCoord = y - (int)offsets.Value<double>("offsetTop") - (y - (int)offsets.Value<double>("offsetTop")) % SquareSize;
+            var xCoord = ((x - (int)offsets.Value<double>("offsetLeft")) / SquareSize) * SquareSize;
+            var yCoord = ((y - (int)offsets.Value<double>("offsetTop")) / SquareSize) * SquareSize;
             if (xCoord >= 0 && xCoord < BoardSize && yCoord >= 0 && yCoord < BoardSize)
             {
                 if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] == Color.White)

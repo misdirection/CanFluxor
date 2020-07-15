@@ -64,7 +64,7 @@
           <th>Count</th>
         </tr>
       </thead>
-      @foreach (var colorCount in ColorCount)
+      @foreach (var colorCount in (ColorCount.OrderByDescending(x => x.Value)))
       {
         <tr>
           <td style="background-color:@colorCount.Key">

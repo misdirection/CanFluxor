@@ -29,6 +29,14 @@ namespace CanFlux.Pages
         protected ElementReference divCanvas;
         protected BECanvasComponent _canvasReference;
         protected bool _gameStarted = false;
+        protected int BoardSize { get; set; }
+        protected int SquareSize { get; set; }
+
+        protected override void OnInitialized()
+        {
+            BoardSize = GameOfLifeHistoryState.Value.Present.BoardSize;
+            SquareSize = GameOfLifeHistoryState.Value.Present.SquareSize;
+        }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {            
@@ -39,8 +47,7 @@ namespace CanFlux.Pages
                 _timer = new Timer(200);
                 _timer.Elapsed += UpdateBoard;
                 GameOfLifeHistoryState.StateChanged += ReDraw;
-            }
-            
+            }            
         }
 
         private async void ReDraw(object sender, GameOfLifeHistoryState e)
@@ -49,6 +56,7 @@ namespace CanFlux.Pages
             await ClearBoard(GameOfLifeHistoryState.Value.Present.BoardSize);
             await DrawBoard();
             await _context.EndBatchAsync();
+            StateHasChanged();
         }
 
         private void UpdateBoard(object sender, ElapsedEventArgs e)
@@ -61,10 +69,10 @@ namespace CanFlux.Pages
 
         private async Task DrawSquare(int x, int y)
         {
-            var xCoord = x * GameOfLifeHistoryState.Value.Present.SquareSize;
-            var yCoord = y * GameOfLifeHistoryState.Value.Present.SquareSize;
+            var xCoord = x * SquareSize;
+            var yCoord = y * SquareSize;
             await _context.SetFillStyleAsync(GetColorString(GameOfLifeHistoryState.Value.Present.Cells[x, y]));
-            await _context.FillRectAsync(xCoord, yCoord, GameOfLifeHistoryState.Value.Present.SquareSize, GameOfLifeHistoryState.Value.Present.SquareSize);
+            await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
         }
 
         private string GetColorString(Color color)
@@ -88,23 +96,25 @@ namespace CanFlux.Pages
 
         private async Task DrawAt(int x, int y)
         {
-            string data = await JSRuntime.InvokeAsync<string>("getDivCanvasOffsets", new object[] { divCanvas });
-            JObject offsets = (JObject)JsonConvert.DeserializeObject(data);
-            var xCoord = x - (int)offsets.Value<double>("offsetLeft") - (x - (int)offsets.Value<double>("offsetLeft")) % GameOfLifeHistoryState.Value.Present.SquareSize;
-            var yCoord = y - (int)offsets.Value<double>("offsetTop") - (y - (int)offsets.Value<double>("offsetTop")) % GameOfLifeHistoryState.Value.Present.SquareSize;
-            if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] == Color.White)
+            var data = await JSRuntime.InvokeAsync<string>("getDivCanvasOffsets", new object[] { divCanvas });
+            var offsets = (JObject)JsonConvert.DeserializeObject(data);
+            var xCoord = x - (int)offsets.Value<double>("offsetLeft") - (x - (int)offsets.Value<double>("offsetLeft")) % SquareSize;
+            var yCoord = y - (int)offsets.Value<double>("offsetTop") - (y - (int)offsets.Value<double>("offsetTop")) % SquareSize;
+            if (xCoord >= 0 && xCoord < BoardSize && yCoord >= 0 && yCoord < BoardSize)
             {
-                Color color = Color.FromArgb(255, Random.Next(256), Random.Next(256), Random.Next(256));
-                GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] = color;
-                await _context.SetFillStyleAsync(GetColorString(color));
-            }
-            else
-            {
-                GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] = Color.White;
-                await _context.SetFillStyleAsync("White");
-            }
-
-            await _context.FillRectAsync(xCoord, yCoord, GameOfLifeHistoryState.Value.Present.SquareSize, GameOfLifeHistoryState.Value.Present.SquareSize);
+                if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] == Color.White)
+                {
+                    Color color = Color.FromArgb(255, Random.Next(256), Random.Next(256), Random.Next(256));
+                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = color;
+                    await _context.SetFillStyleAsync(GetColorString(color));
+                }
+                else
+                {
+                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = Color.White;
+                    await _context.SetFillStyleAsync("White");
+                }
+                await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
+            }            
         }
         protected async void CanvasClicked(MouseEventArgs args)
         {

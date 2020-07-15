@@ -9,6 +9,7 @@ namespace CanFlux.Store.GameOfLife
 {
     public class GameOfLifeReducers
     {
+        private Random random = new Random();
 
         [ReducerMethod]
         public GameOfLifeHistoryState GameOfLifeReducer(GameOfLifeHistoryState state, IGameOfLifeAction action)
@@ -74,7 +75,14 @@ namespace CanFlux.Store.GameOfLife
                     }
                     else if (!isAlive && count == 3)
                     {
-                        newGeneration[x, y] = Color.FromArgb(255, rgb.R / 3, rgb.G / 3, rgb.B / 3);
+                        if (random.Next(100) == 0)
+                        {
+                            newGeneration[x, y] = Color.FromArgb(255, random.Next(256), random.Next(256), random.Next(256));
+                        }
+                        else
+                        {
+                            newGeneration[x, y] = Color.FromArgb(255, rgb.R / 3, rgb.G / 3, rgb.B / 3);
+                        }
                     }
                     else
                     {

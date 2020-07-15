@@ -24,6 +24,7 @@ namespace CanFlux.Pages
 
         private Canvas2DContext _context;
         private Timer _timer;
+        private System.Random Random { get; set; } = new System.Random();
 
         protected ElementReference divCanvas;
         protected BECanvasComponent _canvasReference;
@@ -89,12 +90,13 @@ namespace CanFlux.Pages
         {
             string data = await JSRuntime.InvokeAsync<string>("getDivCanvasOffsets", new object[] { divCanvas });
             JObject offsets = (JObject)JsonConvert.DeserializeObject(data);
-            var xCoord = x - x % GameOfLifeHistoryState.Value.Present.SquareSize - (int)offsets.Value<double>("offsetLeft");
-            var yCoord = y - y % GameOfLifeHistoryState.Value.Present.SquareSize - (int)offsets.Value<double>("offsetTop");
+            var xCoord = x - (int)offsets.Value<double>("offsetLeft") - (x - (int)offsets.Value<double>("offsetLeft")) % GameOfLifeHistoryState.Value.Present.SquareSize;
+            var yCoord = y - (int)offsets.Value<double>("offsetTop") - (y - (int)offsets.Value<double>("offsetTop")) % GameOfLifeHistoryState.Value.Present.SquareSize;
             if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] == Color.White)
             {
-                GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] = Color.Red;
-                await _context.SetFillStyleAsync("Red");
+                Color color = Color.FromArgb(255, Random.Next(256), Random.Next(256), Random.Next(256));
+                GameOfLifeHistoryState.Value.Present.Cells[xCoord / GameOfLifeHistoryState.Value.Present.SquareSize, yCoord / GameOfLifeHistoryState.Value.Present.SquareSize] = color;
+                await _context.SetFillStyleAsync(GetColorString(color));
             }
             else
             {

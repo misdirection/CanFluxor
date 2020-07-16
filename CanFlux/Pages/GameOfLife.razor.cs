@@ -20,14 +20,13 @@ namespace CanFlux.Pages
     public partial class GameOfLife : FluxorComponent
     {
         [Inject]
-        IJSRuntime JSRuntime { get; set; }
+        private IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        IState<CanFlux.Store.GameOfLife.GameOfLifeHistoryState> GameOfLifeHistoryState { get; set; }
+        private IState<CanFlux.Store.GameOfLife.GameOfLifeHistoryState> GameOfLifeHistoryState { get; set; }
 
         private Canvas2DContext _context;
         private Timer _timer;
-        private System.Random Random { get; set; } = new System.Random();
 
         protected ElementReference divCanvas;
         protected BECanvasComponent _canvasReference;
@@ -57,7 +56,7 @@ namespace CanFlux.Pages
         private async void ReDraw(object sender, GameOfLifeHistoryState e)
         {
             await _context.BeginBatchAsync();
-            await ClearBoard(GameOfLifeHistoryState.Value.Present.BoardSize);
+            await ClearBoard(BoardSize);
             await DrawBoard();
             await _context.EndBatchAsync();
             StateHasChanged();
@@ -97,11 +96,12 @@ namespace CanFlux.Pages
                 for (var y = 0; y < GameOfLifeHistoryState.Value.Present.ArraySize; y++)
                 {
                     if (GameOfLifeHistoryState.Value.Present.Cells[x, y] != Color.White)
+                    {
                         await DrawSquare(x, y);
+                    }
                 }
             }
-        }
-        #endregion
+        }        
 
         private async Task DrawAt(int x, int y)
         {
@@ -113,28 +113,29 @@ namespace CanFlux.Pages
             {
                 if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] == Color.White)
                 {
-                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = GetColorFromString(pickedColor);
-                    await _context.SetFillStyleAsync(pickedColor);
-                    AddToColorCount(pickedColor);
+                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = GetColorFromString(PickedColor);
+                    await _context.SetFillStyleAsync(PickedColor);
+                    AddToColorCount(PickedColor);
                 }
-                else if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] == GetColorFromString(pickedColor))
+                else if (GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] == GetColorFromString(PickedColor))
                 {
                     GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = Color.White;
                     await _context.SetFillStyleAsync("White");
-                    RemoveFromColorCount(pickedColor);
+                    SubtractFromColorCount(PickedColor);
                 }
                 else
                 {
-                    RemoveFromColorCount(GetStringFromColor(GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize]));
-                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = GetColorFromString(pickedColor);
-                    await _context.SetFillStyleAsync(pickedColor);
-                    AddToColorCount(pickedColor);
+                    SubtractFromColorCount(GetStringFromColor(GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize]));
+                    GameOfLifeHistoryState.Value.Present.Cells[xCoord / SquareSize, yCoord / SquareSize] = GetColorFromString(PickedColor);
+                    await _context.SetFillStyleAsync(PickedColor);
+                    AddToColorCount(PickedColor);
                 }
                 await _context.FillRectAsync(xCoord, yCoord, SquareSize, SquareSize);
                 
                 StateHasChanged();
             }
         }
+        #endregion
 
         protected async void CanvasClicked(MouseEventArgs args)
         {
@@ -143,31 +144,7 @@ namespace CanFlux.Pages
                 await DrawAt((int)args.ClientX, (int)args.ClientY);
             }
         }
-
-        private void AddToColorCount(string color)
-        {
-            if (!ColorCount.ContainsKey(color))
-            {
-                ColorCount.Add(color, 1);
-            }
-            else
-            {
-                ColorCount[color]++;
-            }
-        }
-
-        private void RemoveFromColorCount(string color)
-        {
-            if (ColorCount[color] == 1)
-            {
-                ColorCount.Remove(color);
-            }
-            else
-            {
-                ColorCount[color]--;
-            }
-        }
-
+        
         protected void Start(MouseEventArgs args)
         {
             _gameStarted = !_gameStarted;
@@ -193,7 +170,7 @@ namespace CanFlux.Pages
             _context.Dispose();
         }
 
-
+        #region ColorHelperFunctions
         private string GetStringFromColor(Color color)
         {
             return "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
@@ -201,25 +178,50 @@ namespace CanFlux.Pages
 
         private Color GetColorFromString(string str)
         {
-            int red = int.Parse(str.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
-            int green = int.Parse(str.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
-            int blue = int.Parse(str.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
+            var red = int.Parse(str.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
+            var green = int.Parse(str.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
+            var blue = int.Parse(str.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
             return Color.FromArgb(255, red, green, blue);
         }
 
+        private void AddToColorCount(string color)
+        {
+            if (!ColorCount.ContainsKey(color))
+            {
+                ColorCount.Add(color, 1);
+            }
+            else
+            {
+                ColorCount[color]++;
+            }
+        }
+
+        private void SubtractFromColorCount(string color)
+        {
+            if (ColorCount[color] == 1)
+            {
+                ColorCount.Remove(color);
+            }
+            else
+            {
+                ColorCount[color]--;
+            }
+        }
+        #endregion
+
         #region ColorPicker
-        bool colorPickerisOpened = false;
-        string pickedColor = "#F1F7E9";
+        protected bool ColorPickerisOpened { get; set; } = false;
+        protected string PickedColor { get; set; } = "#212121";
 
         void OpenColorPicker()
         {
-            colorPickerisOpened = true;
+            ColorPickerisOpened = true;
         }
 
         void ClosedColorPickerEvent(string value)
         {
-            pickedColor = value;
-            colorPickerisOpened = false;
+            PickedColor = value;
+            ColorPickerisOpened = false;
         }
         #endregion
     }
